@@ -5,6 +5,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 // utils
 import { fetchTradesFromApi } from '../tradeApi';
 
+// config
+import { config } from '../config/env';
+
 // types
 import type { StockTradeData, TradeRequestParams } from '../schemas/tradeSchema';
 
@@ -48,8 +51,8 @@ export function useTradeData({ startTimestamp, minQuoteSize, aggregation }: UseT
         combinedSignal
       );
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: config.api.cacheTime,
+    gcTime: config.api.cacheTime * 2,
     refetchOnWindowFocus: false
   });
 

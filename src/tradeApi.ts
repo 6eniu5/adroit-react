@@ -5,10 +5,11 @@ import { z } from 'zod';
 // schemas
 import { stockTradeArraySchema, stockTradeDataArraySchema } from './schemas/tradeSchema';
 
+// config
+import { config } from './config/env';
+
 // types
 import type { TradeRequestParams, StockTradeData, StockTrade } from './schemas/tradeSchema';
-
-const API_BASE_URL = 'http://localhost:5072/api';
 
 function transformTradeData(backendData: StockTrade[]): StockTradeData[] {
   return backendData.map(item => ({
@@ -25,11 +26,18 @@ export async function fetchTradesFromApi(
   signal?: AbortSignal
 ): Promise<StockTradeData[]> {
   try {
-    const url = new URL(`${API_BASE_URL}/trades`);
+    const url = new URL(`${config.api.baseUrl}${config.api.endpoints.trades}`);
     url.searchParams.append('startTimestamp', params.startTimestamp);
     url.searchParams.append('minQuoteSize', params.minQuoteSize.toString());
 
-    const response = await fetch(url.toString(), { signal });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), config.api.timeout);
+    
+    const response = await fetch(url.toString(), { 
+      signal: signal ? signal : controller.signal 
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       const errorText = await response.text();
