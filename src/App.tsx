@@ -1,32 +1,70 @@
+// libs
 import { useCallback, useState } from 'react'
+import { ToastContainer } from 'react-toastify';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// utils
+import { fetchTradesFromApi } from './tradeApi';
+
+// styles
 import './App.css'
-import { StockTradeData } from './models/StockTradeData'
+import 'react-toastify/dist/ReactToastify.css';
 
-type Aggregation = "Daily" | "Weekly" | "Monthly" | "Quarterly"
-type Chart = "BarChart" | "TreeMap"
+// types
+import type { StockTradeData } from './models/StockTradeData';
+import type { AggregationPeriod, Chart } from './hooks/useTradeData';
 
 
-const fetchTrades = async (startTimestamp: string, minQuoteSize: number): Promise<StockTradeData[]> => {
-// TODO #1 : Fill out this method to fetch trades.
-};
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-function App() {
-  const [startDate, setStartDate] = useState(new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDay()).toISOString().split('T')[0])
-  const [minSize, setMinSize] = useState(0)
-  const [aggregation, setAggregation] = useState<Aggregation>('Daily')
-  const [chart, setChart] = useState<Chart>('BarChart')
-
+function Dashboard() {
+  const [startDate, setStartDate] = useState<string>(
+    new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate())
+      .toISOString().split('T')[0]
+  );
+  const [minSize, setMinSize] = useState<number>(10);
+  const [aggregation, setAggregation] = useState<AggregationPeriod>('Daily');
+  const [chart, setChart] = useState<Chart>('BarChart');
+  const [isLoading, setIsLoading] = useState(false);
+  const [tradeData, setTradeData] = useState<StockTradeData[]>([]);
 
   const handleFetchTrades = useCallback(async () => {
-    var trades = await fetchTrades(new Date(startDate).toISOString(), minSize)
+    setIsLoading(true);
+    try {
+      const trades = await fetchTradesFromApi({
+        startTimestamp: new Date(startDate).toISOString(),
+        minQuoteSize: minSize
+      });
+      setTradeData(trades);
+    } catch (error) {
+      console.error('Failed to fetch trades:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [startDate, minSize]);
 
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(e.target.value);
+  };
 
+  const handleMinSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMinSize(parseInt(e.target.value) || 0);
+  };
 
-    // TODO #2 : After fetching trades, add any aggregation logic needed here to support the options below.
-  }, [startDate, minSize])
+  const handleAggregationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setAggregation(e.target.value as AggregationPeriod);
+  };
 
-
-  // TODO #3 : If the user changes the aggregation or chart type, you should update the display without making a call to get new data
+  const handleChartChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setChart(e.target.value as Chart);
+  };
 
   return (
     <>
@@ -34,15 +72,32 @@ function App() {
         <div className='menu-container'>
           <div className='input-group'>
             <label>Start Date</label>
-            <input type="date" id="start" name="trip-start"/>
+            <input 
+              type="date" 
+              id="start" 
+              name="trip-start"
+              value={startDate}
+              onChange={handleStartDateChange}
+            />
           </div>
           <div className='input-group'>
             <label>Min Size</label>
-            <input type="number" id="minSize" name="trip-start"/>
+            <input 
+              type="number" 
+              id="minSize" 
+              name="trip-start"
+              value={minSize}
+              onChange={handleMinSizeChange}
+            />
           </div>
           <div className='input-group'>
             <label>Aggregation</label>
-            <select name="aggregation" id="aggregation">
+            <select 
+              name="aggregation" 
+              id="aggregation"
+              value={aggregation}
+              onChange={handleAggregationChange}
+            >
               <option value="Daily">Daily (1 Day)</option>
               <option value="Weekly">Weekly (7 Days)</option>
               <option value="Monthly">Monthly (30 Days)</option>
@@ -51,21 +106,41 @@ function App() {
           </div>
           <div className='input-group'>
             <label>Chart</label>
-            <select name="chart" id="chart">
+            <select 
+              name="chart" 
+              id="chart"
+              value={chart}
+              onChange={handleChartChange}
+            >
               <option value="BarChart">Bar Chart</option>
               <option value="TreeMap">Tree Map</option>
             </select>
           </div>
-          <button>Go</button>
+          <button onClick={handleFetchTrades} disabled={isLoading}>
+            {isLoading ? 'Loading...' : 'Go'}
+          </button>
         </div>
         <div>
           <div className='chart-container'>
-            Chart Goes Here
+            {tradeData.length === 0 ? (
+              <p>No data to display. Select parameters and click Go.</p>
+            ) : (
+              <p>Loaded {tradeData.length} trades. Chart visualization coming soon.</p>
+            )}
           </div>
         </div>
       </div>
+      <ToastContainer position="bottom-right" autoClose={5000} />
     </>
   )
 }
 
-export default App
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Dashboard />
+    </QueryClientProvider>
+  )
+}
+
+export default App;
