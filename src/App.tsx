@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // utils
 import { fetchTradesFromApi } from './tradeApi';
 
+// components
+import { ChartContainer } from './components/charts/ChartContainer';
+
 // styles
 import './App.css'
 import 'react-toastify/dist/ReactToastify.css';
@@ -125,7 +128,11 @@ function Dashboard() {
             {tradeData.length === 0 ? (
               <p>No data to display. Select parameters and click Go.</p>
             ) : (
-              <p>Loaded {tradeData.length} trades. Chart visualization coming soon.</p>
+              <ChartContainer 
+                data={tradeData} 
+                chartType={chart} 
+                aggregation={aggregation} 
+              />
             )}
           </div>
         </div>

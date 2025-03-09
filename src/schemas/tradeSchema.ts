@@ -1,9 +1,25 @@
 import { z } from 'zod';
 
+// Custom validator for the timestamp format returned by the API
+const apiDatetimeString = z.string().refine(
+  (value) => {
+    // Allow any string that resembles an ISO-8601 date string with timezone
+    // This is more permissive than z.string().datetime() to handle various timezone formats
+    try {
+      return !isNaN(new Date(value).getTime());
+    } catch {
+      return false;
+    }
+  },
+  {
+    message: "Invalid datetime format",
+  }
+);
+
 // Single trade schema
 export const stockTradeSchema = z.object({
   id: z.number().int().positive(),
-  timestamp: z.string().datetime(),
+  timestamp: apiDatetimeString,
   tradeSize: z.number().int().nonnegative(),
   price: z.number().positive().multipleOf(0.01),
   symbol: z.enum(['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META'])
