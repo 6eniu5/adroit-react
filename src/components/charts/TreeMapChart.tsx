@@ -58,14 +58,14 @@ export const TreeMapChart = ({ data }: TreeMapChartProps) => {
   }
 
   return (
-    <div className="chart-container" style={{ height: CHART_CONFIG.DEFAULT_HEIGHT, width: '100%' }}>
+    <div className="chart-container" style={{ height: CHART_CONFIG.TREE_MAP_DEFAULT_HEIGHT, width: '100%' }}>
       <h3>Total Value by Security</h3>
       <ResponsiveContainer width="100%" height="100%">
         <Treemap
           data={treeMapData}
           dataKey="value"
           stroke="#fff"
-          fill={CHART_COLORS.VOLUME} // Default fill
+          fill={CHART_COLORS.VOLUME}
           aspectRatio={4 / 3}
           nameKey="name"
         >

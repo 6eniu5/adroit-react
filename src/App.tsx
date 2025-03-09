@@ -8,6 +8,8 @@ import { fetchTradesFromApi } from './tradeApi';
 
 // components
 import { ChartContainer } from './components/charts/ChartContainer';
+import { ThemeToggle } from './components/ThemeToggle';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // styles
 import './App.css'
@@ -72,6 +74,10 @@ function Dashboard() {
   return (
     <>
       <div className='main-container'>
+        <header className="app-header">
+          <h1 className="app-title">Trade Visualization Dashboard</h1>
+          <ThemeToggle />
+        </header>
         <div className='menu-container'>
           <div className='input-group'>
             <label>Start Date</label>
@@ -81,6 +87,7 @@ function Dashboard() {
               name="trip-start"
               value={startDate}
               onChange={handleStartDateChange}
+              className="input"
             />
           </div>
           <div className='input-group'>
@@ -88,9 +95,10 @@ function Dashboard() {
             <input 
               type="number" 
               id="minSize" 
-              name="trip-start"
+              name="min-size"
               value={minSize}
               onChange={handleMinSizeChange}
+              className="input"
             />
           </div>
           <div className='input-group'>
@@ -100,6 +108,7 @@ function Dashboard() {
               id="aggregation"
               value={aggregation}
               onChange={handleAggregationChange}
+              className="select"
             >
               <option value="Daily">Daily (1 Day)</option>
               <option value="Weekly">Weekly (7 Days)</option>
@@ -114,19 +123,24 @@ function Dashboard() {
               id="chart"
               value={chart}
               onChange={handleChartChange}
+              className="select"
             >
               <option value="BarChart">Bar Chart</option>
               <option value="TreeMap">Tree Map</option>
             </select>
           </div>
-          <button onClick={handleFetchTrades} disabled={isLoading}>
+          <button 
+            onClick={handleFetchTrades} 
+            disabled={isLoading}
+            className="button"
+          >
             {isLoading ? 'Loading...' : 'Go'}
           </button>
         </div>
         <div>
           <div className='chart-container'>
             {tradeData.length === 0 ? (
-              <p>No data to display. Select parameters and click Go.</p>
+              <p className="no-data-message">No data to display. Select parameters and click Go.</p>
             ) : (
               <ChartContainer 
                 data={tradeData} 
@@ -144,9 +158,11 @@ function Dashboard() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Dashboard />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <Dashboard />
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }
 

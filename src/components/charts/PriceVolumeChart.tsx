@@ -90,25 +90,46 @@ export const PriceVolumeChart = ({ data, aggregation }: PriceVolumeChartProps) =
             dataKey="date"
             interval="preserveStartEnd"
             tick={{ fontSize: 11 }}
+            tickMargin={12}
+            label={{
+              value: 'Date',
+              position: 'insideBottomRight',
+              offset: -24,
+              style: { textAnchor: 'end' }
+            }}
           />
           
           {/* Left Y-axis for volume */}
           <YAxis 
             yAxisId="left" 
+            tickMargin={24}
             orientation="left" 
             stroke={CHART_COLORS.VOLUME}
             tickFormatter={formatVolume}
-            label={{ value: 'Volume', angle: -90, position: 'insideLeft' }}
+            label={{ 
+              value: 'Volume', 
+              angle: -90, 
+              position: 'insideLeft',
+              offset: -8,
+              style: { textAnchor: 'middle' }
+            }}
             width={CHART_CONFIG.AXIS_WIDTH}
           />
           
           {/* Right Y-axis for price */}
           <YAxis 
             yAxisId="right" 
+            tickMargin={24}
             orientation="right" 
             stroke={CHART_COLORS.PRICE}
             tickFormatter={formatCurrency}
-            label={{ value: 'Price', angle: 90, position: 'insideRight' }}
+            label={{ 
+              value: 'Price', 
+              angle: 90, 
+              position: 'insideRight',
+              offset: -36,
+              style: { textAnchor: 'middle' }
+            }}
             width={CHART_CONFIG.AXIS_WIDTH}
           />
           
@@ -127,7 +148,16 @@ export const PriceVolumeChart = ({ data, aggregation }: PriceVolumeChartProps) =
             }}
           />
           
-          <Legend />
+          <Legend   
+            verticalAlign="bottom" 
+            align="center"
+            wrapperStyle={{ 
+              paddingTop: 20,
+              paddingBottom: 10,
+              marginTop: 20
+            }}
+            height={50}
+          />
           
           {/* Volume bars */}
           <Bar 
@@ -150,6 +180,7 @@ export const PriceVolumeChart = ({ data, aggregation }: PriceVolumeChartProps) =
           
         </ComposedChart>
       </ResponsiveContainer>
+      
       <div style={{ textAlign: 'center', fontSize: '12px', marginTop: '5px', color: '#666' }}>
         Click zoom buttons above to show different time ranges.
       </div>

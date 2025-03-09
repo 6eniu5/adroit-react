@@ -16,11 +16,12 @@ export const CHART_CONFIG = {
   // Maximum data points to display for optimal performance
   MAX_POINTS: 50,
   // Default height for chart containers
-  DEFAULT_HEIGHT: 400,
+  DEFAULT_HEIGHT: 450,
+  TREE_MAP_DEFAULT_HEIGHT: 'auto',
   // Chart margins
-  MARGINS: { top: 5, right: 30, left: 20, bottom: 5 },
+  MARGINS: { top: 10, right: 35, left: 25, bottom: 10 },
   // Y-axis width
-  AXIS_WIDTH: 80,
+  AXIS_WIDTH: 85,
 };
 
 // Zoom presets
